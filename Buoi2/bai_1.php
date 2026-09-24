@@ -1,6 +1,6 @@
 
 <?php
-
+header("Content-Type: text/plain; charset=utf-8");
 class CartItem {
     public $name;
     public $price;
