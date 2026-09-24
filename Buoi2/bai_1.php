@@ -1,6 +1,6 @@
 
 <?php
-echo "<pre>";
+
 class CartItem {
     public $name;
     public $price;
