@@ -57,7 +57,7 @@ class Movie {
     }
 }
 
-// --- CÁC FUNCTION XỬ LÝ DANH SÁCH ---
+
 function findMovieById($movies, $id) {
     if (empty($movies)) return null;
     foreach ($movies as $movie) {
@@ -92,8 +92,7 @@ function getBestSellingMovie($movies) {
     return $bestMovie;
 }
 
-// --- CHƯƠNG TRÌNH CHÍNH ---
-// 1. Tạo danh sách các object Movie
+
 $movies = [
     new Movie(1, "Avengers", 100000, 100),
     new Movie(2, "Avatar", 120000, 80),
@@ -101,42 +100,41 @@ $movies = [
 ];
 
 echo "--- THỰC HIỆN GIAO DỊCH VÉ ---\n";
-// 2. Đặt vé cho phim Avengers
+
 $avengers = findMovieById($movies, 1);
 if ($avengers) {
     $avengers->bookTicket(30);
-    $avengers->bookTicket(0);   // Test lỗi <= 0
+    $avengers->bookTicket(0);  
 }
 
-// 3. Đặt vé cho phim Avatar
+
 $avatar = findMovieById($movies, 2);
 if ($avatar) {
     $avatar->bookTicket(50);
-    $avatar->bookTicket(40);    // Test lỗi vượt ghế trống (50 + 40 > 80)
+    $avatar->bookTicket(40);    
 }
 
-// 4. Hủy một số vé đã đặt của phim Avengers
+
 if ($avengers) {
     $avengers->cancelTicket(10);
-    $avengers->cancelTicket(50); // Test lỗi hủy quá số vé đã bán
+    $avengers->cancelTicket(50); 
 }
 
-// Thử nghiệm tìm phim không tồn tại
+
 $movieNotFound = findMovieById($movies, 99);
 if (!$movieNotFound) {
     echo "Thông báo: Không tìm thấy phim với ID 99.\n";
 }
 
-// 5. Hiển thị thông tin của tất cả các phim
+
 echo "\n--- THÔNG TIN CÁC BỘ PHIM ---\n";
 foreach ($movies as $movie) {
     $movie->displayInfo();
 }
 
-// 6. Tính tổng doanh thu
+
 echo "\n=> TỔNG DOANH THU TẤT CẢ CÁC PHIM: " . number_format(getTotalRevenue($movies)) . "đ\n";
 
-// 7. Tìm và hiển thị phim có số vé bán ra nhiều nhất
 $bestMovie = getBestSellingMovie($movies);
 if ($bestMovie) {
     echo "=> PHIM BÁN CHẠY NHẤT: {$bestMovie->title} (Số vé đã bán: {$bestMovie->getSoldSeats()})\n";

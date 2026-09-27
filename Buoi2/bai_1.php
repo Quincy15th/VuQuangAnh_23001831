@@ -70,11 +70,10 @@ class ShoppingCart {
     }
 }
 
-// --- CHƯƠNG TRÌNH CHÍNH ---
-// 1. Tạo object ShoppingCart
+
 $cart = new ShoppingCart();
 
-// 2. Tạo ít nhất 04 object CartItem (bao gồm dữ liệu hợp lệ và không hợp lệ)
+
 $item1 = new CartItem("Laptop Dell", 15000000, 1);
 $item2 = new CartItem("Chuột Logitech", 500000, 2);
 $item3 = new CartItem("Bàn phím cơ", 1200000, 1);
@@ -82,24 +81,23 @@ $item4 = new CartItem("Màn hình LG", 4000000, 2);
 $itemInvalidPrice = new CartItem("Lót chuột", -50000, 1);
 $itemInvalidQuantity = new CartItem("Tai nghe", 800000, 0);
 
-// 3. Thêm các sản phẩm vào giỏ hàng
+
 echo "--- THÊM SẢN PHẨM ---\n";
 $cart->addItem($item1);
 $cart->addItem($item2);
 $cart->addItem($item3);
 $cart->addItem($item4);
-$cart->addItem($itemInvalidPrice); // Xử lý lỗi price <= 0
-$cart->addItem($itemInvalidQuantity); // Xử lý lỗi quantity <= 0
+$cart->addItem($itemInvalidPrice); 
+$cart->addItem($itemInvalidQuantity); 
 
-// 4 & 5. Hiển thị toàn bộ giỏ hàng và tổng tiền
+
 $cart->displayCart();
 
-// 6. Xóa một sản phẩm theo tên
 echo "\n--- XÓA SẢN PHẨM ---\n";
 $cart->removeItem("Chuột Logitech");
-$cart->removeItem("Sản phẩm không tồn tại"); // Xử lý lỗi xóa sản phẩm không tồn tại
+$cart->removeItem("Sản phẩm không tồn tại");
 
-// 7. Hiển thị lại giỏ hàng sau khi xóa
+
 $cart->displayCart();
 
 ?>
