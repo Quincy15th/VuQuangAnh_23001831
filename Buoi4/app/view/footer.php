@@ -1,4 +1,4 @@
 <hr>
-    <p>&copy; 2026 Bản quyền thuộc về Bạn</p>
+    <p>&copy; WEBB</p>
 </body>
 </html>

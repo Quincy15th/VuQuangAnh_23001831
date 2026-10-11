@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
 $dbname = 'shopping_cart';
-$user = 'root'; // Thay bằng user của bạn
-$pass = '';     // Thay bằng password của bạn
+$user = 'root';
+$pass = '';
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 
