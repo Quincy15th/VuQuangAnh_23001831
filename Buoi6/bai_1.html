@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bài 1 - Thông tin sinh viên</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #eef2f7;
+        padding: 30px;
+      }
+      .card {
+        max-width: 400px;
+        margin: auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px #0002;
+        text-align: center;
+      }
+      img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .gioi {
+        color: green;
+      }
+      .kha {
+        color: blue;
+      }
+      .trungbinh {
+        color: orange;
+      }
+      .chuadat {
+        color: red;
+      }
+      button {
+        padding: 10px 15px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="card">
+      <h2>THÔNG TIN SINH VIÊN</h2>
+
+      <img :src="sinhVien.anh" :alt="sinhVien.hoTen" />
+
+      <h3>{{ sinhVien.hoTen }}</h3>
+
+      <p>Mã SV: {{ sinhVien.maSV }}</p>
+
+      <p>Lớp: <span v-text="sinhVien.lop"></span></p>
+
+      <p>Điểm trung bình: {{ sinhVien.diemTB }}</p>
+
+      <h3 :class="mauXepLoai">Xếp loại: {{ xepLoai }}</h3>
+
+      <p v-if="sinhVien.dangHoc" style="color: green">Đang học</p>
+      <p v-else style="color: red">Đã nghỉ</p>
+
+      <button @click="hienGioiThieu = !hienGioiThieu">
+        Bật / Tắt giới thiệu
+      </button>
+
+      <p v-show="hienGioiThieu">Tôi là sinh viên yêu thích lập trình web.</p>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            sinhVien: {
+              maSV: "SV001",
+              hoTen: "Phùng Thanh Độ",
+              lop: "CNTT K16",
+              anh: "https://th.bing.com/th/id/OIP.LMBX9ZvXrOvuvc_0qtDBSQHaD4?w=325&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+              diemTB: 8.5,
+              dangHoc: true,
+            },
+            hienGioiThieu: true,
+          };
+        },
+
+        computed: {
+          xepLoai() {
+            const diem = this.sinhVien.diemTB;
+
+            if (diem >= 8 && diem <= 10) return "Giỏi";
+            if (diem >= 6.5 && diem < 8) return "Khá";
+            if (diem >= 5 && diem < 6.5) return "Trung bình";
+            return "Chưa đạt";
+          },
+
+          mauXepLoai() {
+            const loai = this.xepLoai;
+
+            if (loai === "Giỏi") return "gioi";
+            if (loai === "Khá") return "kha";
+            if (loai === "Trung bình") return "trungbinh";
+            return "chuadat";
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bài 2 - Đặt vé xem phim</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f2f4f8;
+        padding: 30px;
+      }
+      .container {
+        max-width: 450px;
+        margin: auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+      }
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0 15px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px;
+        margin: 5px;
+        cursor: pointer;
+      }
+      .total {
+        color: #c62828;
+        font-size: 22px;
+        font-weight: bold;
+      }
+      .success {
+        padding: 15px;
+        margin-top: 15px;
+        background: #e0f5e5;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <h2>ĐẶT VÉ XEM PHIM</h2>
+
+      <form @submit.prevent="datVe">
+        <label>Họ tên khách hàng:</label>
+        <input type="text" v-model.trim="hoTen" placeholder="Nhập họ tên" />
+
+        <label>Chọn suất chiếu:</label>
+        <select v-model="suatChieu">
+          <option value="09:00">09:00</option>
+          <option value="14:00">14:00</option>
+          <option value="19:00">19:00</option>
+        </select>
+
+        <p>Loại vé:</p>
+        <label>
+          <input type="radio" v-model="loaiVe" value="thuong" />
+          Vé thường - 70.000đ
+        </label>
+        <br />
+        <label>
+          <input type="radio" v-model="loaiVe" value="vip" />
+          Vé VIP - 100.000đ
+        </label>
+
+        <p>Số lượng vé (1 đến 10):</p>
+
+        <button type="button" @click="giam">-</button>
+
+        <input
+          type="number"
+          v-model.number="soLuong"
+          min="1"
+          max="10"
+          step="1"
+          style="width: 70px"
+        />
+
+        <button type="button" @click="tang">+</button>
+
+        <p>
+          <label>
+            <input type="checkbox" v-model="combo" />
+            Combo bắp nước (+45.000đ)
+          </label>
+        </p>
+
+        <p class="total">Tổng tiền: {{ dinhDangTien(tongTien) }}</p>
+
+        <button type="submit" :disabled="!hopLe">Đặt vé</button>
+
+        <button type="button" @click="datLai">Đặt lại</button>
+      </form>
+
+      <div v-if="xacNhan" class="success">
+        <h3>ĐẶT VÉ THÀNH CÔNG</h3>
+        <p>Khách hàng: {{ xacNhan.hoTen }}</p>
+        <p>Suất chiếu: {{ xacNhan.suatChieu }}</p>
+        <p>Loại vé: {{ xacNhan.loaiVe }}</p>
+        <p>Số lượng: {{ xacNhan.soLuong }}</p>
+        <p>Combo: {{ xacNhan.combo ? "Có" : "Không" }}</p>
+        <p>Tổng thanh toán: {{ dinhDangTien(xacNhan.tongTien) }}</p>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            hoTen: "",
+            suatChieu: "09:00",
+            loaiVe: "thuong",
+            soLuong: 1,
+            combo: false,
+            xacNhan: null,
+          };
+        },
+
+        computed: {
+          giaVe() {
+            return this.loaiVe === "vip" ? 100000 : 70000;
+          },
+
+          tongTien() {
+            if (!this.soLuongHopLe) return 0;
+
+            return this.giaVe * this.soLuong + (this.combo ? 45000 : 0);
+          },
+
+          soLuongHopLe() {
+            return (
+              Number.isInteger(this.soLuong) &&
+              this.soLuong >= 1 &&
+              this.soLuong <= 10
+            );
+          },
+
+          hopLe() {
+            return this.hoTen.trim() !== "" && this.soLuongHopLe;
+          },
+        },
+
+        methods: {
+          tang() {
+            if (this.soLuongHopLe && this.soLuong < 10) {
+              this.soLuong++;
+            }
+          },
+
+          giam() {
+            if (this.soLuongHopLe && this.soLuong > 1) {
+              this.soLuong--;
+            }
+          },
+
+          dinhDangTien(tien) {
+            return tien.toLocaleString("vi-VN") + "đ";
+          },
+
+          datVe() {
+            if (!this.hopLe) return;
+
+            this.xacNhan = {
+              hoTen: this.hoTen,
+              suatChieu: this.suatChieu,
+              loaiVe: this.loaiVe === "vip" ? "VIP" : "Thường",
+              soLuong: this.soLuong,
+              combo: this.combo,
+              tongTien: this.tongTien,
+            };
+          },
+
+          datLai() {
+            this.hoTen = "";
+            this.suatChieu = "09:00";
+            this.loaiVe = "thuong";
+            this.soLuong = 1;
+            this.combo = false;
+            this.xacNhan = null;
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

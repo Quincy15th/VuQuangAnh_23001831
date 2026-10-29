@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bài 3 - Quản lý công việc</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f0f3f7;
+        padding: 30px;
+      }
+
+      .container {
+        max-width: 550px;
+        margin: auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+      }
+
+      .input-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .input-box input {
+        flex: 1;
+        padding: 10px;
+        min-width: 0;
+      }
+
+      button {
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .done {
+        text-decoration: line-through;
+        color: gray;
+      }
+
+      .filters {
+        display: flex;
+        gap: 5px;
+        margin: 15px 0;
+      }
+
+      .active {
+        background: #2563eb;
+        color: white;
+      }
+
+      .delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <h2>QUẢN LÝ CÔNG VIỆC</h2>
+
+      <div class="input-box">
+        <input
+          type="text"
+          v-model.trim="tenMoi"
+          @keyup.enter="themCongViec"
+          placeholder="Nhập tên công việc..."
+        />
+
+        <button @click="themCongViec">Thêm</button>
+      </div>
+
+      <p>Tổng công việc: {{ tongCongViec }}</p>
+      <p>Chưa hoàn thành: {{ soChuaHoanThanh }}</p>
+
+      <div class="filters">
+        <button :class="{ active: boLoc === 'tatca' }" @click="boLoc = 'tatca'">
+          Tất cả
+        </button>
+
+        <button
+          :class="{ active: boLoc === 'chuaxong' }"
+          @click="boLoc = 'chuaxong'"
+        >
+          Chưa hoàn thành
+        </button>
+
+        <button
+          :class="{ active: boLoc === 'daxong' }"
+          @click="boLoc = 'daxong'"
+        >
+          Đã hoàn thành
+        </button>
+      </div>
+
+      <ul>
+        <li v-for="cv in danhSachLoc" :key="cv.id">
+          <label>
+            <input type="checkbox" v-model="cv.hoanThanh" />
+
+            <span :class="{ done: cv.hoanThanh }"> {{ cv.ten }} </span>
+          </label>
+
+          <button class="delete" @click="xoaCongViec(cv.id)">Xóa</button>
+        </li>
+      </ul>
+
+      <p v-if="congViec.length === 0">
+        Chưa có công việc nào. Hãy thêm công việc!
+      </p>
+
+      <p v-else-if="danhSachLoc.length === 0">
+        Không có công việc phù hợp bộ lọc.
+      </p>
+
+      <button
+        class="delete"
+        @click="xoaDaHoanThanh"
+        :disabled="soDaHoanThanh === 0"
+      >
+        Xóa các việc đã hoàn thành
+      </button>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            tenMoi: "",
+            boLoc: "tatca",
+            idTiepTheo: 3,
+
+            congViec: [
+              {
+                id: 1,
+                ten: "Học VueJS",
+                hoanThanh: false,
+              },
+              {
+                id: 2,
+                ten: "Làm bài tập",
+                hoanThanh: true,
+              },
+            ],
+          };
+        },
+
+        computed: {
+          tongCongViec() {
+            return this.congViec.length;
+          },
+
+          soChuaHoanThanh() {
+            return this.congViec.filter((cv) => !cv.hoanThanh).length;
+          },
+
+          soDaHoanThanh() {
+            return this.congViec.filter((cv) => cv.hoanThanh).length;
+          },
+
+          danhSachLoc() {
+            if (this.boLoc === "chuaxong") {
+              return this.congViec.filter((cv) => !cv.hoanThanh);
+            }
+
+            if (this.boLoc === "daxong") {
+              return this.congViec.filter((cv) => cv.hoanThanh);
+            }
+
+            return this.congViec;
+          },
+        },
+
+        methods: {
+          themCongViec() {
+            const ten = this.tenMoi.trim();
+
+            if (ten === "") {
+              alert("Vui lòng nhập tên công việc!");
+              return;
+            }
+
+            this.congViec.push({
+              id: this.idTiepTheo++,
+              ten: ten,
+              hoanThanh: false,
+            });
+
+            this.tenMoi = "";
+          },
+
+          xoaCongViec(id) {
+            this.congViec = this.congViec.filter((cv) => cv.id !== id);
+          },
+
+          xoaDaHoanThanh() {
+            this.congViec = this.congViec.filter((cv) => !cv.hoanThanh);
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
