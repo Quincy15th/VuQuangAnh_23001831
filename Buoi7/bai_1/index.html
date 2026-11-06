@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bài 1 - Quản lý sản phẩm</title>
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <h1>Danh sách sản phẩm</h1>
+      <p>Trạng thái: {{ trangThai }}</p>
+
+      <!-- Tìm kiếm, lọc và sắp xếp -->
+      <section class="toolbar">
+        <input
+          v-model="tuKhoa"
+          type="search"
+          placeholder="Tìm kiếm sản phẩm..."
+        />
+
+        <select v-model="danhMucChon">
+          <option value="">Tất cả danh mục</option>
+          <option v-for="dm in danhMuc" :key="dm" :value="dm">{{ dm }}</option>
+        </select>
+
+        <select v-model="sapXep">
+          <option value="mac-dinh">Mặc định</option>
+          <option value="tang">Giá tăng dần</option>
+          <option value="giam">Giá giảm dần</option>
+        </select>
+      </section>
+
+      <p v-if="thongBao" class="message">{{ thongBao }}</p>
+
+      <!-- Thống kê -->
+      <section class="stats">
+        <span>
+          Hiển thị:
+          <strong>{{ sanPhamHienThi.length }}/{{ sanPham.length }}</strong>
+          sản phẩm
+        </span>
+        <span>
+          Tổng giá trị tồn kho:
+          <strong>{{ dinhDangTien(tongGiaTriTon) }}</strong>
+        </span>
+      </section>
+
+      <!-- Bảng sản phẩm -->
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên</th>
+            <th>Giá</th>
+            <th>Danh mục</th>
+            <th>Tồn kho</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="sp in sanPhamHienThi" :key="sp.id">
+            <td>{{ sp.id }}</td>
+            <td>{{ sp.ten }}</td>
+            <td>{{ dinhDangTien(sp.gia) }}</td>
+            <td>{{ sp.danhMuc }}</td>
+            <td>{{ sp.tonKho }}</td>
+            <td>
+              <span :class="sp.tonKho > 0 ? 'ok' : 'out'">
+                {{ sp.tonKho > 0 ? 'Còn hàng' : 'Hết hàng' }}
+              </span>
+            </td>
+            <td>
+              <button class="danger" @click="xoaSanPham(sp.id)">Xóa</button>
+            </td>
+          </tr>
+
+          <tr v-if="sanPhamHienThi.length === 0">
+            <td colspan="7">Không có sản phẩm phù hợp</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Thêm sản phẩm -->
+      <h2>Thêm sản phẩm</h2>
+
+      <form @submit.prevent="themSanPham" novalidate>
+        <input v-model="moi.ten" placeholder="Tên sản phẩm" />
+
+        <input v-model="moi.gia" type="number" placeholder="Giá" />
+
+        <select v-model="moi.danhMuc">
+          <option v-for="dm in danhMuc" :key="dm" :value="dm">{{ dm }}</option>
+        </select>
+
+        <input v-model="moi.tonKho" type="number" placeholder="Số lượng tồn" />
+
+        <button type="submit">Thêm sản phẩm</button>
+      </form>
+
+      <p v-if="loi" class="error">{{ loi }}</p>
+      <p v-if="thanhCong" class="ok">{{ thanhCong }}</p>
+    </main>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

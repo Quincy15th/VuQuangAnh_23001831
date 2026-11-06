@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bài 3 - Giỏ hàng</title>
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <h1>Giỏ hàng</h1>
+
+      <template v-if="gioHang.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Sản phẩm</th>
+              <th>Đơn giá</th>
+              <th>Số lượng</th>
+              <th>Thành tiền</th>
+              <th>Xóa</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <dong-gio-hang
+              v-for="sp in gioHang"
+              :key="sp.id"
+              :san-pham="sp"
+              @doi-so-luong="doiSoLuong"
+              @yeu-cau-xoa="xoaSanPham"
+            ></dong-gio-hang>
+          </tbody>
+        </table>
+
+        <section class="stats">
+          <span>
+            Tổng số lượng:
+            <strong>{{ tongSoLuong }}</strong>
+          </span>
+
+          <span>
+            Tổng tiền:
+            <strong>{{ dinhDangTien(tongTien) }}</strong>
+          </span>
+        </section>
+      </template>
+
+      <p v-else>Giỏ hàng trống</p>
+
+      <p v-if="loi" class="error">{{ loi }}</p>
+    </main>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="components/DongGioHang.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

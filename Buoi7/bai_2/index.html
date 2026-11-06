@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bài 2 - Component sản phẩm</title>
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <h1>Danh mục sản phẩm</h1>
+
+      <section class="cards">
+        <the-san-pham
+          v-for="sp in sanPham"
+          :key="sp.id"
+          :ten="sp.ten"
+          :gia="sp.gia"
+          :anh="sp.anh"
+          :mo-ta="sp.moTa"
+          :ton-kho="sp.tonKho"
+        ></the-san-pham>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="components/TheSanPham.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
