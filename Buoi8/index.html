@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quản lý sản phẩm - Vue.js + PHP</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f6fb; color: #1e293b; font-family: Arial, sans-serif; }
+    .container { max-width: 1000px; margin: 35px auto; padding: 0 16px; }
+    h1 { text-align: center; color: #1d4ed8; }
+    .panel { background: #fff; border-radius: 12px; padding: 22px; margin-top: 22px; box-shadow: 0 3px 18px #0000000b; }
+    h2 { margin-top: 0; font-size: 20px; }
+    .fields { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; }
+    label { display: block; font-size: 14px; margin-bottom: 6px; font-weight: bold; }
+    input { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 7px; }
+    .actions { margin-top: 15px; display: flex; gap: 10px; }
+    button { border: 0; border-radius: 7px; padding: 9px 14px; cursor: pointer; font-weight: bold; }
+    button:disabled { opacity: .5; cursor: wait; }
+    .primary { background: #2563eb; color: white; }
+    .muted { background: #e2e8f0; color: #334155; }
+    .edit { background: #f59e0b; color: #111827; }
+    .delete { background: #dc2626; color: white; }
+    .notice { padding: 12px; border-radius: 7px; margin-top: 14px; background: #dcfce7; color: #166534; }
+    .notice.error { background: #fee2e2; color: #991b1b; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e2e8f0; padding: 13px 10px; text-align: left; }
+    th { background: #eff6ff; }
+    td:last-child { white-space: nowrap; }
+    .empty { text-align: center; color: #64748b; }
+    @media (max-width: 650px) { .fields { grid-template-columns: 1fr; } .container { margin-top: 16px; } }
+  </style>
+</head>
+<body>
+<div id="app" class="container">
+  <h1>QUẢN LÝ SẢN PHẨM</h1>
+
+  <section class="panel">
+    <h2>{{ editId === null ? 'Thêm sản phẩm' : 'Sửa sản phẩm #' + editId }}</h2>
+    <form @submit.prevent="saveProduct">
+      <div class="fields">
+        <div>
+          <label for="name">Tên sản phẩm</label>
+          <input id="name" v-model="form.name" maxlength="100" required placeholder="Nhập tên sản phẩm">
+        </div>
+        <div>
+          <label for="price">Đơn giá (đ)</label>
+          <input id="price" v-model.number="form.price" type="number" min="1" max="2147483647" step="1" required>
+        </div>
+        <div>
+          <label for="stock">Số lượng tồn</label>
+          <input id="stock" v-model.number="form.stock" type="number" min="0" max="2147483647" step="1" required>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit" :disabled="saving">{{ saving ? 'Đang lưu...' : 'Lưu' }}</button>
+        <button class="muted" type="button" @click="resetForm">Hủy</button>
+      </div>
+    </form>
+    <div v-if="message" class="notice" :class="{error: isError}" role="status">{{ message }}</div>
+  </section>
+
+  <section class="panel">
+    <h2>Danh sách sản phẩm</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Tên sản phẩm</th><th>Đơn giá</th><th>Số lượng tồn</th><th>Thao tác</th></tr></thead>
+        <tbody>
+          <tr v-for="p in products" :key="p.id">
+            <td>{{ p.id }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ formatPrice(p.price) }}</td>
+            <td>{{ p.stock }}</td>
+            <td>
+              <button class="edit" type="button" @click="editProduct(p)">Sửa</button>
+              <button class="delete" type="button" @click="deleteProduct(p.id)">Xóa</button>
+            </td>
+          </tr>
+          <tr v-if="!products.length"><td colspan="5" class="empty">Chưa có sản phẩm</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const { createApp } = Vue;
+createApp({
+  data() {
+    return {
+      products: [],
+      form: { name: '', price: '', stock: 0 },
+      editId: null,
+      message: '',
+      isError: false,
+      saving: false
+    };
+  },
+  methods: {
+    formatPrice(price) { return Number(price).toLocaleString('vi-VN') + ' đ'; },
+    notice(message, isError = false) { this.message = message; this.isError = isError; },
+    resetForm() {
+      this.editId = null;
+      this.form = { name: '', price: '', stock: 0 };
+    },
+    async request(url, options) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Yêu cầu thất bại');
+      return data;
+    },
+    async loadProducts() {
+      try {
+        const result = await this.request('api/products.php');
+        this.products = result.data;
+        return true;
+      } catch (error) {
+        this.notice('Không tải được danh sách: ' + error.message, true);
+        return false;
+      }
+    },
+    editProduct(product) {
+      this.editId = Number(product.id);
+      this.form = {
+        name: product.name,
+        price: Number(product.price),
+        stock: Number(product.stock)
+      };
+      this.message = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    async saveProduct() {
+      const name = this.form.name.trim();
+      const price = this.form.price;
+      const stock = this.form.stock;
+      if (!name || [...name].length > 100 || !Number.isInteger(price) || price <= 0 ||
+          !Number.isInteger(stock) || stock < 0 || price > 2147483647 || stock > 2147483647) {
+        this.notice('Tên phải từ 1–100 ký tự, giá là số nguyên > 0, tồn kho là số nguyên >= 0.', true);
+        return;
+      }
+      const isEditing = this.editId !== null;
+      const url = isEditing ? 'api/products.php?id=' + this.editId : 'api/products.php';
+      this.saving = true;
+      try {
+        const result = await this.request(url, {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, price, stock })
+        });
+        this.resetForm();
+        if (await this.loadProducts()) this.notice(result.message);
+      } catch (error) {
+        this.notice(error.message, true);
+      } finally {
+        this.saving = false;
+      }
+    },
+    async deleteProduct(id) {
+      if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
+      try {
+        const result = await this.request('api/products.php?id=' + id, { method: 'DELETE' });
+        if (this.editId === Number(id)) this.resetForm();
+        if (await this.loadProducts()) this.notice(result.message);
+      } catch (error) {
+        this.notice(error.message, true);
+      }
+    }
+  },
+  mounted() { this.loadProducts(); }
+}).mount('#app');
+</script>
+</body>
+</html>
